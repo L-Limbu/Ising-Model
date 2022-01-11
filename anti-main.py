@@ -1,6 +1,6 @@
 import numpy as np
 import time
-#defining the size of the lattice to be 10 particles. So a 10x10x10 cube.
+#defining the size of the lattice. So it produces a size x size x size cube.
 size=500
 #defining the amount of iterations to be processed.
 iterations = 1000
@@ -11,20 +11,19 @@ def lattice(size):
     return array
 initial_lattice = lattice(size)
 
+#For anti-ferromagnetic process
 
-
-
-def FerroMonteProcess(x = initial_lattice, alpha=1):
+def AntiFerroMonteProcess(x=initial_lattice, alpha=1):
     '''Monte Carlo Algorithm Process with the default value of alpha is 1
     x in the arguement is the initial lattice'''
-    ferromagnetic = np.array([x])
+    anti_ferromagnetic = np.array([x])
     for k in range(iterations):
-        #this second iteration is used to only save data space by only appending data after this loop.
         for p in range(size**2):
             a = np.random.randint(size)
             b = np.random.randint(size)
-            spin = x[a,b] 
             # spin in the lattice is chosen at random.
+            spin = x[a,b] 
+        
 
             ###Finding the spins of neighbours of the chosen partice.
             up = x[(a-1)%size][b]
@@ -38,27 +37,17 @@ def FerroMonteProcess(x = initial_lattice, alpha=1):
             #Probability to change the chosen particle's spin
             Probability = -grad_E / alpha
 
-            
-            if grad_E < 0:
-                
-        
-                x[a,b] *= -1
-                
-            elif np.random.rand() < np.exp(Probability):                        
-                
-            
-                x[a,b] *= -1
-
-        ferromagnetic = np.append(ferromagnetic, [x], axis=0)
-    return np.save('./data/ferromagnetic', ferromagnetic)
-
-
+            if grad_E >= 0:
+                spin *= -1
+                x[a,b] = spin
+            elif np.random.rand() >= np.exp(Probability):                        
+                spin *= -1
+                x[a,b] = spin
+        anti_ferromagnetic = np.append(anti_ferromagnetic, [x], axis=0)
+    return np.save('./data/anti-ferromagnetic', anti_ferromagnetic)
 
 
 start = time.perf_counter()
-FerroMonteProcess()
-
+AntiFerroMonteProcess()
 end = time.perf_counter()
 print(f'Simulation took {end-start:0.4f} seconds')
-
-
