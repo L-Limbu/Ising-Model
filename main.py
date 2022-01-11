@@ -1,8 +1,8 @@
 import numpy as np
 #defining the size of the lattice to be 10 particles. So a 10x10x10 cube.
-size=10
+size=30
 #defining the amount of iterations to be processed.
-iterations = 1000
+iterations = size**2*100
 
 def lattice(size):
     '''Make a array of length size'''
@@ -13,21 +13,21 @@ initial_lattice = lattice(size)
 
 
 
-def FerroMonteProcess(x, alpha=1.8):
-    '''Monte Carlo Algorithm Process with the default value of alpha is 1.8
+def FerroMonteProcess(x = initial_lattice, alpha=2.5):
+    '''Monte Carlo Algorithm Process with the default value of alpha is 2.5
     x in the arguement is the initial lattice'''
-    ferromagnetic = []
-    for k in range(iterations):
+    ferromagnetic = np.array([x])
+    for k in range(iterations-1):
         a = np.random.randint(size)
         b = np.random.randint(size)
         spin = x[a,b] 
         # spin in the lattice is chosen at random.
 
         ###Finding the spins of neighbours of the chosen partice.
-        up = x[b-1][a]
-        down = x[(b+1) - size][a]
-        lhs = x[b][a-1]
-        rhs = x[b][(a+1)-size]
+        up = x[(a-1)][b]
+        down = x[(a+1) - size][b]
+        lhs = x[a][b-1]
+        rhs = x[a][(b+1)-size]
         neighbour_S = up + down + lhs + rhs
 
         grad_E = 2 * spin * neighbour_S
@@ -35,34 +35,40 @@ def FerroMonteProcess(x, alpha=1.8):
         #Probability to change the chosen particle's spin
         Probability = -grad_E / alpha
 
-        if grad_E <= 0:
-            spin *= -1
-            x[a,b] = spin
-        elif np.random.rand() <= np.exp(Probability):                        
-            spin *= -1
-            x[a,b] = spin
-        ferromagnetic.append(x)
-    return np.save('./data/ferromagnetic', x)
+        
+        if grad_E < 0:
+            
+      
+            x[a,b] *= -1
+            
+        elif np.random.rand() < np.exp(Probability):                        
+            
+         
+            x[a,b] *= -1
+
+        ferromagnetic = np.append(ferromagnetic, [x], axis=0)
+    return np.save('./data/ferromagnetic', ferromagnetic)
 
 
 
 #For anti-ferromagnetic process
 
-def AntiFerroMonteProcess(x, alpha=1.8):
-    '''Monte Carlo Algorithm Process with the default value of alpha is 1.8
+def AntiFerroMonteProcess(x=initial_lattice, alpha=2.5):
+    '''Monte Carlo Algorithm Process with the default value of alpha is 2.5
     x in the arguement is the initial lattice'''
-    anti_ferromagnetic = []
-    for k in range(iterations):
+    anti_ferromagnetic = np.array([x])
+    for k in range(iterations-1):
         a = np.random.randint(size)
         b = np.random.randint(size)
+         # spin in the lattice is chosen at random.
         spin = x[a,b] 
-        # spin in the lattice is chosen at random.
+       
 
         ###Finding the spins of neighbours of the chosen partice.
-        up = x[b-1][a]
-        down = x[(b+1) - size][a]
-        lhs = x[b][a-1]
-        rhs = x[b][(a+1)-size]
+        up = x[(a-1)][b]
+        down = x[(a+1) - size][b]
+        lhs = x[a][b-1]
+        rhs = x[a][(b+1)-size]
         neighbour_S = up + down + lhs + rhs
 
         grad_E = 2 * spin * neighbour_S
@@ -70,15 +76,16 @@ def AntiFerroMonteProcess(x, alpha=1.8):
         #Probability to change the chosen particle's spin
         Probability = -grad_E / alpha
 
-        if grad_E >= 0:
+        if grad_E > 0:
             spin *= -1
             x[a,b] = spin
-        elif np.random.rand() >= np.exp(Probability):                        
+        elif np.random.rand() > np.exp(Probability):                        
             spin *= -1
             x[a,b] = spin
-        anti_ferromagnetic.append(x)
+        anti_ferromagnetic = np.append(anti_ferromagnetic, [x], axis=0)
     return np.save('./data/anti-ferromagnetic', anti_ferromagnetic)
 
 
-FerroMonteProcess(initial_lattice)
-AntiFerroMonteProcess(initial_lattice)
+FerroMonteProcess()
+AntiFerroMonteProcess()
+
